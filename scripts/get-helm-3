@@ -18,11 +18,11 @@
 # the package manager for Go: https://github.com/Masterminds/glide.sh/blob/master/get
 
 : ${BINARY_NAME:="helm"}
-: ${USE_SUDO:="true"}
+: ${USE_SUDO:="false"}
 : ${DEBUG:="false"}
 : ${VERIFY_CHECKSUM:="true"}
 : ${VERIFY_SIGNATURES:="false"}
-: ${HELM_INSTALL_DIR:="/usr/local/bin"}
+: ${HELM_INSTALL_DIR:="$HOME/opt/helm"}
 : ${GPG_PUBRING:="pubring.kbx"}
 
 HAS_CURL="$(type "curl" &> /dev/null && echo true || echo false)"
@@ -151,7 +151,7 @@ downloadFile() {
   HELM_TMP_ROOT="$(mktemp -dt helm-installer-XXXXXX)"
   HELM_TMP_FILE="$HELM_TMP_ROOT/$HELM_DIST"
   HELM_SUM_FILE="$HELM_TMP_ROOT/$HELM_DIST.sha256"
-  echo "Downloading $DOWNLOAD_URL"
+  echo "Downloading $DOWNLOAD_URL into $HELM_TMP_ROOT"
   if [ "${HAS_CURL}" == "true" ]; then
     curl -SsL "$CHECKSUM_URL" -o "$HELM_SUM_FILE"
     curl -SsL "$DOWNLOAD_URL" -o "$HELM_TMP_FILE"
@@ -179,7 +179,7 @@ installFile() {
   mkdir -p "$HELM_TMP"
   tar xf "$HELM_TMP_FILE" -C "$HELM_TMP"
   HELM_TMP_BIN="$HELM_TMP/$OS-$ARCH/helm"
-  echo "Preparing to install $BINARY_NAME into ${HELM_INSTALL_DIR}"
+  echo "Preparing to install $BINARY_NAME(path:$HELM_TMP/$OS-$ARCH/helm) into ${HELM_INSTALL_DIR}"
   runAsRoot cp "$HELM_TMP_BIN" "$HELM_INSTALL_DIR/$BINARY_NAME"
   echo "$BINARY_NAME installed into $HELM_INSTALL_DIR/$BINARY_NAME"
 }
